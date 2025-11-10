@@ -43,7 +43,13 @@ class UsersTable
             ])
             ->recordActions([
                 ActionGroup::make([
-                    ViewAction::make(),
+                    ViewAction::make()
+                        ->label('Voir')
+                        ->icon('heroicon-o-eye')
+                        ->color('info')
+                        ->modalHeading('Détails de l\'utilisateur')
+                        ->modalWidth('3xl')
+                        ->modalContent(view('filament.resources.user-view-modal')),
                     EditAction::make(),
                     DeleteAction::make(),
                 ]),

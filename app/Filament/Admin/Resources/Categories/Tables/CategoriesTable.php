@@ -11,7 +11,9 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CategoriesTable
 {
@@ -20,12 +22,22 @@ class CategoriesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),   
+                    ->label('Nom de la catégorie')
+                    ->searchable()
+                    ->sortable(),   
                 TextColumn::make('slug')
-                    ->searchable(),     
-                ImageColumn::make('image'),    
+                    ->label('URL (Slug)')
+                    ->searchable()
+                    ->sortable(),     
+                ImageColumn::make('image')
+                    ->label('Image')
+                    ->circular()
+                    ->size(50),    
                 IconColumn::make('is_active')
-                    ->boolean(),
+                    ->label('Actif')
+                    ->boolean()
+                    ->trueColor('success')
+                    ->falseColor('danger'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -36,14 +48,39 @@ class CategoriesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // Filtre pour les catégories actives
+                Filter::make('is_active')
+                    ->label('Catégories actives')
+                    ->query(fn (Builder $query): Builder => $query->where('is_active', true))
+                    ->indicator('Actives'),
             ])
             ->recordActions([
                 ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
+                    ViewAction::make()
+                        ->label('Voir')
+                        ->icon('heroicon-o-eye')
+                        ->color('info')
+                        ->modalHeading('Détails de la catégorie')
+                        ->modalWidth('3xl')
+                        ->modalContent(view('filament.resources.category-view-modal')),
+                    EditAction::make()
+                        ->label('Modifier')
+                        ->icon('heroicon-o-pencil')
+                        ->color('warning'),
+                    DeleteAction::make()
+                        ->label('Supprimer')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Supprimer la catégorie')
+                        ->modalDescription('Êtes-vous sûr de vouloir supprimer cette catégorie ? Cette action est irréversible.')
+                        ->modalSubmitActionLabel('Oui, supprimer'),
                 ])
+                ->label('Actions')
+                ->icon('heroicon-o-ellipsis-vertical')
+                ->size('sm')
+                ->color('gray')
+                ->button(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

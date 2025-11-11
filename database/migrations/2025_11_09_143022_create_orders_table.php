@@ -23,6 +23,10 @@ return new class extends Migration
             $table->string('shipping_method')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
+
+            $table->index(['user_id', 'status']);
+            $table->index('status');
+            $table->index('created_at');
         });
     }
 

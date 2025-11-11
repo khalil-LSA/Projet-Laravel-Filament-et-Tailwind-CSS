@@ -20,32 +20,75 @@ class CategoriesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(15)
+            ->paginationPageOptions([10, 15, 25, 50, 100])
+            ->striped()
             ->columns([
-                TextColumn::make('name')
-                    ->label('Nom de la catégorie')
-                    ->searchable()
-                    ->sortable(),   
-                TextColumn::make('slug')
-                    ->label('URL (Slug)')
-                    ->searchable()
-                    ->sortable(),     
                 ImageColumn::make('image')
                     ->label('Image')
                     ->circular()
-                    ->size(50),    
+                    ->size(60)
+                    ->defaultImageUrl('/images/placeholder.png')
+                    ->extraImgAttributes(['class' => 'ring-2 ring-info-500 shadow-lg']),
+                
+                TextColumn::make('name')
+                    ->label('Nom de la catégorie')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold')
+                    ->size('lg')
+                    ->icon('heroicon-o-folder')
+                    ->iconColor('info')
+                    ->description(fn ($record) => $record->products()->count() . ' produit(s)')
+                    ->tooltip('Cliquez pour voir les détails'),
+                
+                TextColumn::make('slug')
+                    ->label('URL (Slug)')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('URL copiée!')
+                    ->copyMessageDuration(1500)
+                    ->badge()
+                    ->color('gray')
+                    ->icon('heroicon-o-link')
+                    ->toggleable(isToggledHiddenByDefault: false),
+                
                 IconColumn::make('is_active')
-                    ->label('Actif')
+                    ->label('Statut')
                     ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
-                    ->falseColor('danger'),
+                    ->falseColor('danger')
+                    ->size('xl')
+                    ->alignCenter(),
+                
+                TextColumn::make('products_count')
+                    ->label('Produits')
+                    ->counts('products')
+                    ->badge()
+                    ->color('primary')
+                    ->icon('heroicon-o-shopping-bag')
+                    ->alignCenter()
+                    ->sortable(),
+                
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Créé le')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
+                    ->icon('heroicon-o-calendar')
+                    ->iconColor('success')
                     ->toggleable(isToggledHiddenByDefault: true),
+                
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Modifié le')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->since()
+                    ->icon('heroicon-o-clock')
+                    ->iconColor('gray')
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
                 // Filtre pour les catégories actives
@@ -66,7 +109,7 @@ class CategoriesTable
                     EditAction::make()
                         ->label('Modifier')
                         ->icon('heroicon-o-pencil')
-                        ->color('warning'),
+                        ->color('primary'),
                     DeleteAction::make()
                         ->label('Supprimer')
                         ->icon('heroicon-o-trash')

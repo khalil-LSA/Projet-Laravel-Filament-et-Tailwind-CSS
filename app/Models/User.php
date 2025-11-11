@@ -57,4 +57,9 @@ class User extends Authenticatable implements FilamentUser
         // Vous pouvez ajouter une logique plus complexe ici (rôles, permissions, etc.)
         return true;
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class OrderResource extends Resource
 {
@@ -22,7 +23,22 @@ class OrderResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    protected static ?string $recordTitleAttribute = 'Order Resource';
+    protected static ?string $modelLabel = 'Commande';
+
+    protected static ?string $pluralModelLabel = 'Commandes';
+
+    protected static ?string $navigationLabel = 'Commandes';
+
+    protected static UnitEnum|string|null $navigationGroup = 'E-commerce';
+
+    protected static ?int $navigationSort = 4;
+
+    protected static ?string $recordTitleAttribute = 'id';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class BrandResource extends Resource
 {
@@ -22,7 +23,22 @@ class BrandResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedComputerDesktop;
 
-    protected static ?string $recordTitleAttribute = 'Brand Resource';
+    protected static ?string $modelLabel = 'Marque';
+
+    protected static ?string $pluralModelLabel = 'Marques';
+
+    protected static ?string $navigationLabel = 'Marques';
+
+    protected static UnitEnum|string|null $navigationGroup = 'E-commerce';
+
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Schema $schema): Schema
     {

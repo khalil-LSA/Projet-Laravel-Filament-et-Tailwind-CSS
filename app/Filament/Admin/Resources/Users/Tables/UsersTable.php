@@ -50,9 +50,24 @@ class UsersTable
                         ->modalHeading('Détails de l\'utilisateur')
                         ->modalWidth('3xl')
                         ->modalContent(view('filament.resources.user-view-modal')),
-                    EditAction::make(),
-                    DeleteAction::make(),
-                ]),
+                    EditAction::make()
+                        ->label('Modifier')
+                        ->icon('heroicon-o-pencil')
+                        ->color('primary'),
+                    DeleteAction::make()
+                        ->label('Supprimer')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Supprimer l\'utilisateur')
+                        ->modalDescription('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')
+                        ->modalSubmitActionLabel('Oui, supprimer'),
+                ])
+                ->label('Actions')
+                ->icon('heroicon-o-ellipsis-vertical')
+                ->size('sm')
+                ->color('gray')
+                ->button(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -11,6 +11,10 @@ class Category extends Model
     use HasFactory;
     protected $fillable = ["name","slug","image","is_active"];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     protected static function boot()
     {
         parent::boot();

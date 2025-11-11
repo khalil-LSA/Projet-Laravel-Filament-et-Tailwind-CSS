@@ -13,11 +13,17 @@ class Order extends Model
         "user_id",
         "grand_total",
         "payment_method",
+        "payment_status",
         "status",
         "currency",
         "shipping_amount",
         "shipping_method",
         "notes"
+    ];
+
+    protected $casts = [
+        'grand_total' => 'decimal:2',
+        'shipping_amount' => 'decimal:2',
     ];
 
     public function user()

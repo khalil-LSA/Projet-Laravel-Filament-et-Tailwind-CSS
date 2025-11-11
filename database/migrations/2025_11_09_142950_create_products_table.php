@@ -25,6 +25,12 @@ return new class extends Migration
             $table->boolean('in_stock')->default(true);
             $table->boolean('on_sale')->default(false);
             $table->timestamps();
+
+            // Indexes for performance
+            $table->index(['is_active', 'in_stock']);
+            $table->index('is_featured');
+            $table->index('on_sale');
+            $table->index('price');
         });
     }
 

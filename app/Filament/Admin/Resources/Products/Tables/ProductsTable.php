@@ -11,10 +11,12 @@ use Filament\Actions\ViewAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ActionGroup;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 
 class ProductsTable
@@ -23,16 +25,53 @@ class ProductsTable
     {
         return $table
             ->defaultPaginationPageOption(15)
-            ->paginationPageOptions([10, 15, 25, 50])
+            ->paginationPageOptions([10, 15, 25, 50, 100])
+            ->striped()
+            ->defaultSort('created_at', 'desc')
             ->columns([
+                ImageColumn::make('images')
+                    ->label('Image')
+                    ->getStateUsing(function ($record) {
+                        // Support JSON array or single string path; return a full URL
+                        $images = $record->images;
+                        if (is_string($images)) {
+                            $decoded = json_decode($images, true);
+                            if (json_last_error() === JSON_ERROR_NONE) {
+                                $images = $decoded;
+                            }
+                        }
+                        $path = null;
+                        if (is_array($images) && count($images) > 0) {
+                            $path = $images[0];
+                        } elseif (is_string($images)) {
+                            $path = $images; // already a single path
+                        }
+                        if ($path) {
+                            // Normalize Windows backslashes to web-friendly slashes
+                            $path = str_replace('\\', '/', $path);
+                            return asset('storage/' . ltrim($path, '/'));
+                        }
+                        return asset('images/placeholder.png');
+                    })
+                    ->height(50)
+                    ->width(50)
+                    ->circular(true)
+                    ->defaultImageUrl('/images/placeholder.png')
+                    ->extraImgAttributes(['class' => 'ring-2 ring-primary-500 shadow-lg']),
                 TextColumn::make('name')
                     ->label('Produit')
                     ->searchable()
                     ->sortable()
-                    ->limit(25)
+                    ->weight('bold')
+                    ->size('lg')
+                    ->icon('heroicon-o-shopping-bag')
+                    ->iconColor('primary')
+                    ->limit(30)
+                    ->wrap()
+                    ->description(fn ($record) => 'Réf: ' . $record->slug)
                     ->tooltip(function (TextColumn $column): ?string {
                         $state = $column->getState();
-                        if (strlen($state) <= 25) {
+                        if (strlen($state) <= 30) {
                             return null;
                         }
                         return $state;
@@ -40,37 +79,60 @@ class ProductsTable
                 TextColumn::make('category.name')
                     ->label('Catégorie')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->badge()
+                    ->color('info')
+                    ->icon('heroicon-o-tag'),
                 TextColumn::make('brand.name')
                     ->label('Marque')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->badge()
+                    ->color('primary')
+                    ->icon('heroicon-o-building-office'),
                 TextColumn::make('price')
                     ->label('Prix')
-                    ->suffix(' CFA')
+                    ->numeric(decimalPlaces: 0, thousandsSeparator: ' ')
                     ->sortable()
-                    ->alignEnd(),
+                    ->alignEnd()
+                    ->weight('bold')
+                    ->size('lg')
+                    ->color('success')
+                    ->icon('heroicon-o-currency-dollar')
+                    ->tooltip('Prix en CFA'),
                 IconColumn::make('is_active')
                     ->label('Actif')
                     ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
-                    ->falseColor('danger'),
+                    ->falseColor('danger')
+                    ->size('lg'),
                 IconColumn::make('in_stock')
                     ->label('Stock')
                     ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
-                    ->falseColor('danger'),
+                    ->falseColor('danger')
+                    ->size('lg'),
                 IconColumn::make('is_featured')
                     ->label('Vedette')
                     ->boolean()
-                    ->trueColor('warning')
+                    ->trueIcon('heroicon-o-star')
+                    ->falseIcon('heroicon-o-star')
+                    ->trueColor('primary')
                     ->falseColor('gray')
+                    ->size('lg')
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('on_sale')
                     ->label('Promo')
                     ->boolean()
-                    ->trueColor('info')
+                    ->trueIcon('heroicon-o-bolt')
+                    ->falseIcon('heroicon-o-bolt-slash')
+                    ->trueColor('danger')
                     ->falseColor('gray')
+                    ->size('lg')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -82,16 +144,16 @@ class ProductsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                // Filtre par catégorie
-                SelectFilter::make('category_id')
+                // Filtre par catégorie (relation)
+                SelectFilter::make('category')
                     ->label('Catégorie')
-                    ->options(Category::all()->pluck('name', 'id'))
+                    ->relationship('category', 'name')
                     ->indicator('Catégorie'),
 
-                // Filtre par marque
-                SelectFilter::make('brand_id')
+                // Filtre par marque (relation)
+                SelectFilter::make('brand')
                     ->label('Marque')
-                    ->options(Brand::all()->pluck('name', 'id'))
+                    ->relationship('brand', 'name')
                     ->indicator('Marque'),
 
                 // Filtre pour les produits actifs
@@ -130,7 +192,7 @@ class ProductsTable
                     EditAction::make()
                         ->label('Modifier')
                         ->icon('heroicon-o-pencil')
-                        ->color('warning'),
+                        ->color('primary'),
                     DeleteAction::make()
                         ->label('Supprimer')
                         ->icon('heroicon-o-trash')
@@ -140,11 +202,11 @@ class ProductsTable
                         ->modalDescription('Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.')
                         ->modalSubmitActionLabel('Oui, supprimer'),
                 ])
-                ->label('Actions')
-                ->icon('heroicon-o-ellipsis-vertical')
-                ->size('sm')
-                ->color('gray')
-                ->button(),
+                    ->label('Actions')
+                    ->icon('heroicon-o-ellipsis-vertical')
+                    ->size('sm')
+                    ->color('gray')
+                    ->button(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

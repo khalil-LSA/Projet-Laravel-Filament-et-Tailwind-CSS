@@ -31,32 +31,13 @@ class ProductsTable
             ->columns([
                 ImageColumn::make('images')
                     ->label('Image')
-                    ->getStateUsing(function ($record) {
-                        // Support JSON array or single string path; return a full URL
-                        $images = $record->images;
-                        if (is_string($images)) {
-                            $decoded = json_decode($images, true);
-                            if (json_last_error() === JSON_ERROR_NONE) {
-                                $images = $decoded;
-                            }
-                        }
-                        $path = null;
-                        if (is_array($images) && count($images) > 0) {
-                            $path = $images[0];
-                        } elseif (is_string($images)) {
-                            $path = $images; // already a single path
-                        }
-                        if ($path) {
-                            // Normalize Windows backslashes to web-friendly slashes
-                            $path = str_replace('\\', '/', $path);
-                            return asset('storage/' . ltrim($path, '/'));
-                        }
-                        return asset('images/placeholder.png');
-                    })
+                    ->disk('public')
+                    ->circular()
+                    ->stacked()
+                    ->limit(1)
                     ->height(50)
                     ->width(50)
-                    ->circular(true)
-                    ->defaultImageUrl('/images/placeholder.png')
+                    ->defaultImageUrl(asset('images/placeholder.png'))
                     ->extraImgAttributes(['class' => 'ring-2 ring-primary-500 shadow-lg']),
                 TextColumn::make('name')
                     ->label('Produit')

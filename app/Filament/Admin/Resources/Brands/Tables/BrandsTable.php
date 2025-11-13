@@ -26,9 +26,10 @@ class BrandsTable
             ->columns([
                 ImageColumn::make('image')
                     ->label('Logo')
+                    ->disk('public')
                     ->circular()
                     ->size(60)
-                    ->defaultImageUrl('/images/placeholder.png')
+                    ->defaultImageUrl(asset('images/placeholder.png'))
                     ->extraImgAttributes(['class' => 'ring-2 ring-primary-500 shadow-lg']),
                 
                 TextColumn::make('name')

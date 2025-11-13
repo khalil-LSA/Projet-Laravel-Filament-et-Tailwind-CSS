@@ -62,10 +62,12 @@ class ProductInfolist
                     ->schema([
                         ImageEntry::make('images')
                             ->label('Galerie d\'images')
+                            ->disk('public')
                             ->circular()
                             ->stacked()
                             ->limit(5)
                             ->limitedRemainingText()
+                            ->defaultImageUrl(asset('images/placeholder.png'))
                             ->columnSpanFull(),
                     ])
                     ->collapsible(),

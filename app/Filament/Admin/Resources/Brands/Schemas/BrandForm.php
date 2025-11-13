@@ -63,6 +63,7 @@ class BrandForm
                         FileUpload::make('image')
                             ->label('Logo de la marque')
                             ->image()
+                            ->disk('public')
                             ->directory('brands')
                             ->imageEditor()
                             ->downloadable()

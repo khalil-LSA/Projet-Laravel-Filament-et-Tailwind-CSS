@@ -63,6 +63,7 @@ class CategoryForm
                         FileUpload::make('image')
                             ->label('Image de la catégorie')
                             ->image()
+                            ->disk('public')
                             ->directory('categories')
                             ->imageEditor()
                             ->downloadable()

@@ -111,6 +111,7 @@ class ProductForm
                             ->label('Images du produit')
                             ->image()
                             ->multiple()
+                            ->disk('public')
                             ->directory('products')
                             ->maxFiles(5)
                             ->reorderable()

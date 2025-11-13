@@ -146,6 +146,45 @@ class OrderInfolist
                             ]),
                     ]),
 
+                Section::make('Adresse de Livraison')
+                    ->description('Informations de livraison')
+                    ->icon('heroicon-o-map-pin')
+                    ->iconColor('success')
+                    ->schema([
+                        TextEntry::make('address.full_name')
+                            ->label('Nom complet')
+                            ->icon('heroicon-o-user')
+                            ->placeholder('Non renseigné'),
+                        
+                        TextEntry::make('address.phone')
+                            ->label('Téléphone')
+                            ->icon('heroicon-o-phone')
+                            ->placeholder('Non renseigné'),
+                            
+                        TextEntry::make('address.street_address')
+                            ->label('Adresse')
+                            ->icon('heroicon-o-building-office-2')
+                            ->placeholder('Non renseignée')
+                            ->columnSpanFull(),
+                            
+                        TextEntry::make('address.city')
+                            ->label('Ville')
+                            ->icon('heroicon-o-building-office')
+                            ->placeholder('Non renseignée'),
+                            
+                        TextEntry::make('address.state')
+                            ->label('État/Province')
+                            ->icon('heroicon-o-map')
+                            ->placeholder('Non renseigné'),
+                            
+                        TextEntry::make('address.zip_code')
+                            ->label('Code postal')
+                            ->icon('heroicon-o-hashtag')
+                            ->placeholder('Non renseigné'),
+                    ])
+                    ->columns(2)
+                    ->collapsible(),
+
                 Section::make('Notes')
                     ->description('Informations additionnelles')
                     ->icon('heroicon-o-document-text')

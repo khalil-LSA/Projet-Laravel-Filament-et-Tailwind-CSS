@@ -25,9 +25,10 @@ class CategoryInfolist
                             ->schema([
                                 ImageEntry::make('image')
                                     ->label('Image')
+                                    ->disk('public')
                                     ->circular()
                                     ->size(120)
-                                    ->defaultImageUrl('/images/placeholder.png')
+                                    ->defaultImageUrl(asset('images/placeholder.png'))
                                     ->columnSpan(1),
                                 
                                 Grid::make(1)
